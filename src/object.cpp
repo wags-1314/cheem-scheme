@@ -90,6 +90,14 @@ Object* make_object_primitive_procedure(Object* (*func)(Object* arguments)) {
 	return object;
 }
 
+Object* make_object_procedure(Object* params, Object* body) {
+	Object* object = new Object();
+	object->type = ObjectType::O_PROC;
+	object->car = params;
+	object->cdr = body;
+	return object;
+}
+
 bool is_integer(Object *obj) {
 	return obj->type == ObjectType::O_INTEGER;
 }
@@ -128,6 +136,10 @@ bool is_error(Object* obj) {
 
 bool is_primitive_procedure(Object* obj) {
 	return obj->type == ObjectType::O_PPROC;
+}
+
+bool is_procedure(Object* obj) {
+	return obj->type == ObjectType::O_PROC;
 }
 
 Object* car(Object* pair) {

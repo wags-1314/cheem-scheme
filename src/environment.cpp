@@ -31,3 +31,13 @@ void Environment::set(std::string key, Object* value) {
 bool Environment::is_key_in_lookup_table(std::string key) {
 	return lookup_table.find(key) != lookup_table.end();
 }
+
+void Environment::set_list(Object* params, Object* arguments) {
+	auto p = params;
+	auto a = arguments;
+	while (!is_null(p)) {
+		lookup_table[(car(p))->string] = car(a);
+		p = cdr(p);
+		a = cdr(a);
+	}
+}

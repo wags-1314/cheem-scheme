@@ -9,6 +9,7 @@ bool does_list_start_with(Object* object, std::string string);
 bool is_quoted(Object* object);
 bool is_definition(Object* object);
 bool is_set(Object* object);
+bool is_lambda(Object* object);
 
 Object* add_pproc(Object* arguments);
 

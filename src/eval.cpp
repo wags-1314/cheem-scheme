@@ -40,6 +40,10 @@ bool is_set(Object* object) {
 	return does_list_start_with(object, "set!");
 }
 
+bool is_lambda(Object* object) {
+	return does_list_start_with(object, "lambda");
+}
+
 Object* add_pproc(Object* arguments) {
 	long sum = 0;
 
@@ -95,48 +99,70 @@ Object* set_variable(Object* object, Environment* env) {
 
 
 Object* evaluate(Object* object, Environment* env) {
-	if(is_self_evaluating(object)) {
-		//self evaluating types
-		//> integers
-		//> booleans
-		//> strings
-		//> characters
-		return object;
+	while(true){	
+		if(is_self_evaluating(object)) {
+			//self evaluating types
+			//> integers
+			//> booleans
+			//> strings
+			//> characters
+			return object;
 
-	} else if(is_symbol(object)) {
-		//checking if its a variable
-		return lookup_variable(object, env);
+		} else if(is_symbol(object)) {
+			//checking if its a variable
+			return lookup_variable(object, env);
 
-	} else if(is_quoted(object)) {
-		// check if quote
-		return quote(object);
+		} else if(is_quoted(object)) {
+			// check if quote
+			return quote(object);
 
-	} else if(is_definition(object)) {
-		return define_variable(object, env);
+		} else if(is_definition(object)) {
+			return define_variable(object, env);
 
-	} else if(is_set(object)) {
-		return set_variable(object, env);
+		} else if(is_set(object)) {
+			return set_variable(object, env);
 
-	} else if(is_pair(object)) {
-		// this then should be a function
-		// so we get the first item of the list and search the environment for it
-		// if its a function we try to evaluate it
-		// else we pass an error
-		auto procedure = lookup_variable(car(object), env);
+		} else if(is_lambda(object)) {
+			auto params = car(cdr(object));
+			auto body = cdr(cdr(object));
+			return make_object_procedure(params, body);
 
-		if(is_primitive_procedure(procedure)) {
-			auto arguments = evaluate_list(cdr(object), env);
-			return (procedure->func)(arguments);
+		} else if(is_pair(object)) {
+			// this then should be a function
+			// so we get the first item of the list and search the environment for it
+			// if its a function we try to evaluate it
+			// else we pass an error
+			auto procedure = evaluate(car(object), env);
+
+			if(is_primitive_procedure(procedure)) {
+				std::cout << "pphere" << std::endl;
+				auto arguments = evaluate_list(cdr(object), env);
+				auto ans = (procedure->func)(arguments);
+				std::cout << ans->integer << "bc" << std::endl;
+				return ans;
+
+			} else if(is_procedure(procedure)) {
+				std::cout << "phere" << std::endl;
+				auto arguments = evaluate_list(cdr(object), env);
+				auto params = car(procedure);
+				auto body = cdr(procedure);
+
+				// assume len(arguments) == len(params), will add check later
+				Environment* proc_scope = new Environment(env);
+				proc_scope->set_list(params, arguments);
+				object = body;
+				env = proc_scope;
+				continue;
+			}
+
+			std::cout << car(object)->string << std::endl;
+			return make_object_error("proc start"); 
 		}
 
-		std::cout << car(object)->string << std::endl;
-		return make_object_error("proc start"); 
+		else {
+			return make_object_error("unknown");
 
-	}
-
-	else {
-		return make_object_error("unknown");
-
+		}
 	}
 }
 

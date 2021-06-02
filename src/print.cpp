@@ -56,6 +56,8 @@ std::string print_object(Object* object) {
 		ss << object->string;
 	} else if(is_error(object)) {
 		ss << object->string;
+	} else if(is_primitive_procedure(object) || is_procedure(object)) {
+		ss << "#<procedure>";
 	}
 
 	return ss.str();

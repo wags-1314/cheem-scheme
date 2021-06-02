@@ -38,6 +38,7 @@ public:
 	 */
 	void set(std::string key, Object* value);
 	bool is_key_in_lookup_table(std::string key);
+	void set_list(Object* params, Object* arguments);
 };
 
 #endif
