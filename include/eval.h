@@ -10,6 +10,7 @@ bool is_quoted(Object* object);
 bool is_definition(Object* object);
 bool is_set(Object* object);
 bool is_lambda(Object* object);
+bool is_if(Object* object);
 
 Object* add_pproc(Object* arguments);
 

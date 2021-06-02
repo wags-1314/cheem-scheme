@@ -46,6 +46,10 @@ bool is_lambda(Object* object) {
 	return does_list_start_with(object, "lambda");
 }
 
+bool is_if(Object* object) {
+	return does_list_start_with(object, "if");
+}
+
 Object* add_pproc(Object* arguments) {
 	long sum = 0;
 
@@ -130,6 +134,25 @@ Object* evaluate(Object* object, Environment* env) {
 			auto body = cdr(cdr(object));
 			return make_object_procedure(params, body);
 
+		} else if(is_if(object)) {
+			auto cond = evaluate(car(cdr(object)), env);
+			auto then_branch = car(cdr(cdr(object)));
+			auto else_branch = car(cdr(cdr(cdr(object))));
+
+			if(is_boolean(cond)) {
+				if(cond->boolean) {
+					return evaluate(then_branch, env);
+				} else {
+					if(is_null(cdr(cdr(cdr(object))))) {
+						return Constants::False;
+					} else {
+						return evaluate(else_branch, env);
+					}
+				}
+			} else {
+				return evaluate(then_branch, env);
+			}
+
 		} else if(is_pair(object)) {
 			// this then should be a function
 			// so we get the first item of the list and search the environment for it
@@ -153,11 +176,8 @@ Object* evaluate(Object* object, Environment* env) {
 			} else {
 				return make_object_error("test");
 			}
-		}
-
-		else {
+		} else {
 			return make_object_error("unknown");
-
 		}
 	
 }
