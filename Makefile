@@ -25,4 +25,4 @@ run:
 	@echo " Running...";
 	./bin/cheem
 
-.PHONY: clean
+.PHONY: clean run

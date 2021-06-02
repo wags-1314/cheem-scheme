@@ -1,7 +1,7 @@
 #include "object.h"
 #include <iostream>
 
-/*void print_object_type(ObjectType type, std::ostream& os) {
+void print_object_type(ObjectType type, std::ostream& os) {
 	switch(type) {
 		case ObjectType::O_INTEGER:
 			os << "int" << std::endl;
@@ -30,8 +30,19 @@
 		case ObjectType::O_SYMBOL:
 			os << "sym" << std::endl;
 			break;
+
+		case ObjectType::O_PPROC:
+			os << "prim proc" << std::endl;
+			break;
+
+		case ObjectType::O_PROC:
+			os << "proc" << std::endl;
+			break;
+
+		default:
+			os << "mistake" << std::endl;
 	}
-}*/
+}
 
 Object* make_object_integer(long integer) {
 	Object* object = new Object();

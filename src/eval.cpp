@@ -1,4 +1,6 @@
 #include "eval.h"
+#include "util.h"
+#include "print.h"
 #include <iostream>
 
 bool is_self_evaluating(Object* object) {
@@ -99,7 +101,8 @@ Object* set_variable(Object* object, Environment* env) {
 
 
 Object* evaluate(Object* object, Environment* env) {
-	while(true){	
+	
+		
 		if(is_self_evaluating(object)) {
 			//self evaluating types
 			//> integers
@@ -135,35 +138,28 @@ Object* evaluate(Object* object, Environment* env) {
 			auto procedure = evaluate(car(object), env);
 
 			if(is_primitive_procedure(procedure)) {
-				std::cout << "pphere" << std::endl;
 				auto arguments = evaluate_list(cdr(object), env);
-				auto ans = (procedure->func)(arguments);
-				std::cout << ans->integer << "bc" << std::endl;
-				return ans;
+				return (procedure->func)(arguments);			
 
 			} else if(is_procedure(procedure)) {
-				std::cout << "phere" << std::endl;
 				auto arguments = evaluate_list(cdr(object), env);
 				auto params = car(procedure);
-				auto body = cdr(procedure);
+				auto body = car(cdr(procedure));
 
 				// assume len(arguments) == len(params), will add check later
 				Environment* proc_scope = new Environment(env);
 				proc_scope->set_list(params, arguments);
-				object = body;
-				env = proc_scope;
-				continue;
+				return evaluate(body, proc_scope);
+			} else {
+				return make_object_error("test");
 			}
-
-			std::cout << car(object)->string << std::endl;
-			return make_object_error("proc start"); 
 		}
 
 		else {
 			return make_object_error("unknown");
 
 		}
-	}
+	
 }
 
 Object* evaluate_list(Object* list, Environment* env) {
