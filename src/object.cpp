@@ -83,6 +83,13 @@ Object* make_object_error(std::string error_message) {
 	return object;
 }
 
+Object* make_object_primitive_procedure(Object* (*func)(Object* arguments)) {
+	Object* object = new Object();
+	object->type = ObjectType::O_PPROC;
+	object->func = func;
+	return object;
+}
+
 bool is_integer(Object *obj) {
 	return obj->type == ObjectType::O_INTEGER;
 }
@@ -117,6 +124,10 @@ bool is_symbol(Object* obj) {
 
 bool is_error(Object* obj) {
 	return obj->type == ObjectType::O_ERROR;
+}
+
+bool is_primitive_procedure(Object* obj) {
+	return obj->type == ObjectType::O_PPROC;
 }
 
 Object* car(Object* pair) {

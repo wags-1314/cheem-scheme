@@ -9,7 +9,7 @@
  */
 enum class ObjectType {
 	O_INTEGER, O_BOOL, O_CHARACTER, O_ERROR, O_STRING, O_NULL, O_DEFAULT,
-	O_PAIR, O_SYMBOL
+	O_PAIR, O_SYMBOL, O_PPROC
 };
 
 /**
@@ -32,9 +32,12 @@ public:
 	std::string string;
 	Object* car; //! head of pair
 	Object* cdr; //! tail of pair
+	Object* (*func)(Object* arguments);
+
 	Object() { type = ObjectType::O_DEFAULT; }
 	Object(ObjectType type_){ type = type_; }
 	Object(bool boolean_) { type = ObjectType::O_BOOL; boolean = boolean_; }
+
 };
 
 /**
@@ -63,6 +66,7 @@ Object* make_object_string(std::string string);
 Object* cons(Object* car, Object* cdr);
 Object* make_object_symbol(std::string symbol);
 Object* make_object_error(std::string error_message);
+Object* make_object_primitive_procedure(Object* (*func)(Object* arguments));
 
 bool is_integer(Object *obj);
 bool is_boolean(Object* obj);
@@ -73,6 +77,7 @@ bool is_true(Object* obj);
 bool is_pair(Object* obj);
 bool is_symbol(Object* obj);
 bool is_error(Object* obj);
+bool is_primitive_procedure(Object* obj);
 
 /**
  * @brief      returns head of pair

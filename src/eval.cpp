@@ -33,11 +33,22 @@ bool is_quoted(Object* object) {
 }
 
 bool is_definition(Object* object) {
-	return does_list_start_with(object, "define");
+	return does_list_start_with(object, "def");
 }
 
 bool is_set(Object* object) {
 	return does_list_start_with(object, "set!");
+}
+
+Object* add_pproc(Object* arguments) {
+	long sum = 0;
+
+	while(!is_null(arguments)) {
+		sum += (car(arguments)) -> integer;
+		arguments = cdr(arguments);
+	}
+
+	return make_object_integer(sum);
 }
 
 Object* lookup_variable(Object* object, Environment* env) {
@@ -91,41 +102,48 @@ Object* evaluate(Object* object, Environment* env) {
 		//> strings
 		//> characters
 		return object;
+
 	} else if(is_symbol(object)) {
 		//checking if its a variable
 		return lookup_variable(object, env);
+
 	} else if(is_quoted(object)) {
+		// check if quote
 		return quote(object);
+
 	} else if(is_definition(object)) {
-		return define_variable(object,env);
+		return define_variable(object, env);
+
 	} else if(is_set(object)) {
 		return set_variable(object, env);
-	} else {
-		return make_object_error("unknown");
+
+	} else if(is_pair(object)) {
+		// this then should be a function
+		// so we get the first item of the list and search the environment for it
+		// if its a function we try to evaluate it
+		// else we pass an error
+		auto procedure = lookup_variable(car(object), env);
+
+		if(is_primitive_procedure(procedure)) {
+			auto arguments = evaluate_list(cdr(object), env);
+			return (procedure->func)(arguments);
+		}
+
+		std::cout << car(object)->string << std::endl;
+		return make_object_error("proc start"); 
+
 	}
 
-	/*else if(is_pair(object)) {
-		Object* head = car(object);
-		Object* tail = cdr(object);
-		if(is_symbol(head)) {
-			if(string_eq(head->str, "quote")) {
-				return tail;
-			} else if(string_eq(head->str, "define")) {
-				Object* symbol = car(tail);
-				Object* value = cdr(tail);
+	else {
+		return make_object_error("unknown");
 
-				//1. check if the symbol is actually a symbol
-				if(!is_symbol(symbol)) {
-					return make_object_error("");
-				}
+	}
+}
 
-			} 
-
-			else {
-				return make_object_error("unknown procedure");
-			}
-		} else {
-			return make_object_error("unknown procedure");
-		}
-	}*/
+Object* evaluate_list(Object* list, Environment* env) {
+	if(is_null(list)) {
+		return Constants::Null;
+	} else {
+		return cons(evaluate(car(list), env), evaluate_list(cdr(list), env));
+	}
 }

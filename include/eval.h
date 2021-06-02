@@ -10,6 +10,8 @@ bool is_quoted(Object* object);
 bool is_definition(Object* object);
 bool is_set(Object* object);
 
+Object* add_pproc(Object* arguments);
+
 /**
  * @brief      looks up value of symbol in environment
  *
@@ -58,5 +60,7 @@ Object* set_variable(Object* object, Environment* env);
  * @return     returns evaluated object
  */
 Object* evaluate(Object* object, Environment* env);
+
+Object* evaluate_list(Object* list, Environment* env);
 
 #endif
