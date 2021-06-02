@@ -13,6 +13,10 @@ bool is_lambda(Object* object);
 bool is_if(Object* object);
 
 Object* add_pproc(Object* arguments);
+Object* sub_pproc(Object* arguments);
+Object* eq_int_pproc(Object* arguments);
+Object* mult_pproc(Object* arguments);
+Object* quit_pproc(Object* arguments);
 
 /**
  * @brief      looks up value of symbol in environment

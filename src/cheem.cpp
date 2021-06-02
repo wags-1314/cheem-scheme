@@ -28,8 +28,16 @@ int main(int argc, char const *argv[]) {
     Environment* global_environment = new Environment();
 
     Object* obj_add = make_object_primitive_procedure(add_pproc);
+    Object* obj_sub = make_object_primitive_procedure(sub_pproc);
+    Object* obj_mult = make_object_primitive_procedure(mult_pproc);
+    Object* obj_eq = make_object_primitive_procedure(eq_int_pproc);
+    Object* obj_quit = make_object_primitive_procedure(quit_pproc);
 
     global_environment->set("+", obj_add);
+    global_environment->set("=?", obj_eq);
+    global_environment->set("-", obj_sub);
+    global_environment->set("*", obj_mult);
+    global_environment->set("quit", obj_quit);
 
 
 
