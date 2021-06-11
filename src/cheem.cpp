@@ -7,6 +7,7 @@
 #include "object.h"
 #include "print.h"
 #include "environment.h"
+#include "primitive_procedures.h"
 
 Object* read(std::string source) {
     Scanner scanner = Scanner(source);	
@@ -16,12 +17,12 @@ Object* read(std::string source) {
     return object;
 }
 
-Object* eval(Object* object, Environment* env) {
-    return evaluate(object, env);
+Object* eval(Object* object, Environment* env, Stack& traceback) {
+    return evaluate(object, env, traceback);
 }
 
-std::string print(Object* object) {
-    return print_object(object);
+std::string print(Object* object, Stack traceback) {
+    return print_object(object, traceback);
 }
 
 int main(int argc, char const *argv[]) {
@@ -44,21 +45,22 @@ int main(int argc, char const *argv[]) {
     int line_number = 0;
     std::ifstream fin("cheem.txt"); // open this file for input
 
+    
+
     std::string line;
     while(std::getline(fin, line)) {
         std::cout << line << '\n';
     }
-
-
     
     std::cout<<"============cheem-scheme v.1============\n";
     std::string source;
     while(true) {
+        Stack traceback;
         std::cout << ++line_number << "] cheem> ";
         std::getline(std::cin, source);
         Object* expr = read(source);
-        Object* evaluated_expr = eval(expr, global_environment);
-        std::cout << print(evaluated_expr) << std::endl;
+        Object* evaluated_expr = eval(expr, global_environment, traceback);
+        std::cout << print(evaluated_expr, traceback) << std::endl;
     }
     return 0;
 }

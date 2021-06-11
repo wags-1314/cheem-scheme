@@ -10,22 +10,22 @@ std::string print_object(Object* object) {
 }
 */
 
-std::string print_pair(Object* object) {
+std::string print_pair(Object* object, Stack traceback) {
 	std::stringstream ss;
-	ss << print_object(object->car);
+	ss << print_object(object->car, traceback);
 	if(is_pair(object->cdr)) {
 		ss << " ";
-		ss << print_pair(object->cdr);
+		ss << print_pair(object->cdr, traceback);
 	} else if(is_null(object->cdr)) {
 		ss << "";
 	} else {
 		ss << " . ";
-		ss << print_object(object->cdr);
+		ss << print_object(object->cdr, traceback);
 	}
 	return ss.str();
 }
 
-std::string print_object(Object* object) {
+std::string print_object(Object* object, Stack traceback) {
 	std::stringstream ss;
 	//print_object_type(object->type, std::cout);
 	if(is_integer(object)) {
@@ -48,13 +48,14 @@ std::string print_object(Object* object) {
 		ss << "\"" << object->string << "\"";
 	} else if(is_pair(object)) {
 		ss << "(";
-		ss << print_pair(object);
+		ss << print_pair(object, traceback);
 		ss << ")";
 	} else if(is_null(object)) {
 		ss << "()";
 	} else if(is_symbol(object)) {
 		ss << object->string;
 	} else if(is_error(object)) {
+		ss << "Error: Dumping Traceback...\nTODO\n";
 		ss << object->string;
 	} else if(is_primitive_procedure(object) || is_procedure(object)) {
 		ss << "#<procedure>";

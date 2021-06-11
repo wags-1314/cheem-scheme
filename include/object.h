@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include <stack>
 
 /**
  * @brief      This class describes all object types
@@ -19,6 +20,8 @@ enum class ObjectType {
  * @param      out   output stream
  */
 void print_object_type(ObjectType type, std::ostream& out);
+
+
 
 /**
  * @brief      Generic cheem-scheme object
@@ -39,6 +42,8 @@ public:
 	Object(bool boolean_) { type = ObjectType::O_BOOL; boolean = boolean_; }
 
 };
+
+using Stack = std::stack<Object*>;
 
 /**
  * @brief      Some obect constants that will be used a lot
@@ -98,5 +103,7 @@ Object* car(Object* pair);
  * @return     tail of pair
  */
 Object* cdr(Object* pair);
+
+Object* bool_to_object_bool(bool a);
 
 #endif

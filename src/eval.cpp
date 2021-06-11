@@ -51,55 +51,6 @@ bool is_if(Object* object) {
 	return does_list_start_with(object, "if");
 }
 
-Object* sub_pproc(Object* arguments) {
-	long sum = (car(arguments))->integer;
-	arguments = cdr(arguments);
-
-	while(!is_null(arguments)) {
-		sum -= (car(arguments)) -> integer;
-		arguments = cdr(arguments);
-	}
-
-	return make_object_integer(sum);
-}
-
-Object* add_pproc(Object* arguments) {
-	long sum = 0;
-
-	while(!is_null(arguments)) {
-		sum += (car(arguments)) -> integer;
-		arguments = cdr(arguments);
-	}
-
-	return make_object_integer(sum);
-}
-
-Object* mult_pproc(Object* arguments) {
-	long sum = 1;
-
-	while(!is_null(arguments)) {
-		sum *= (car(arguments)) -> integer;
-		arguments = cdr(arguments);
-	}
-
-	return make_object_integer(sum);
-}
-
-Object* eq_int_pproc(Object* arguments) {
-	auto a = car(arguments);
-	auto b = car(cdr(arguments));
-
-	if((a->integer) == (b->integer)) {
-		return Constants::True;
-	} else {
-		return Constants::False;
-	}
-}
-
-Object* quit_pproc(Object* arguments) {
-	exit(0);
-}
-
 Object* lookup_variable(Object* object, Environment* env) {
 	Object* value = env->get(object->string);
 	if(value != nullptr) {
@@ -113,10 +64,10 @@ Object* quote(Object* object) {
 	return cdr(object);
 }
 
-Object* define_variable(Object* object, Environment* env) {
+Object* define_variable(Object* object, Environment* env, Stack& traceback) {
 	Object* binding = cdr(object);
 	Object* symbol = car(binding);
-	Object* value = evaluate(car(cdr(binding)), env);
+	Object* value = evaluate(car(cdr(binding)), env, traceback);
 	if(!is_symbol(symbol)) {
 		return make_object_error("values can only bound to symbols");
 	} else {
@@ -125,10 +76,10 @@ Object* define_variable(Object* object, Environment* env) {
 	}
 }
 
-Object* set_variable(Object* object, Environment* env) {
+Object* set_variable(Object* object, Environment* env, Stack& traceback) {
 	Object* binding = cdr(object);
 	Object* symbol = car(binding);
-	Object* value = evaluate(car(cdr(binding)), env);
+	Object* value = evaluate(car(cdr(binding)), env, traceback);
 	if(!is_symbol(symbol)) {
 		return make_object_error("values can only bound to symbols");
 	} else {
@@ -143,8 +94,9 @@ Object* set_variable(Object* object, Environment* env) {
 }
 
 
-Object* evaluate(Object* object, Environment* env) {
+Object* evaluate(Object* object, Environment* env, Stack& traceback) {
 	while(true) {
+
 		if(is_self_evaluating(object)) {
 				//self evaluating types
 				//> integers
@@ -155,6 +107,7 @@ Object* evaluate(Object* object, Environment* env) {
 	
 		} else if(is_symbol(object)) {
 			//checking if its a variable
+			//! need to add this to stacktrace
 			return lookup_variable(object, env);
 
 		} else if(is_quoted(object)) {
@@ -163,8 +116,11 @@ Object* evaluate(Object* object, Environment* env) {
 
 		} else if(is_definition(object)) {
 
+			traceback.push(object);
 			if(is_pair(car(cdr(object)))) {
 				// define lambda
+				// need to do some checking here
+				// so put on stack trace
 				auto identifier = car(car(cdr(object)));
 				auto params = cdr(car(cdr(object)));
 				auto body = car(cdr(cdr(object)));
@@ -175,18 +131,21 @@ Object* evaluate(Object* object, Environment* env) {
 
 			}
 
-			return define_variable(object, env);
+			return define_variable(object, env, traceback);
 
 		} else if(is_set(object)) {
-			return set_variable(object, env);
+			traceback.push(object);
+			return set_variable(object, env, traceback);
 
 		} else if(is_lambda(object)) {
+			traceback.push(object);
 			auto params = car(cdr(object));
 			auto body = car(cdr(cdr(object)));
 			return make_object_procedure(params, body);
 
 		} else if(is_if(object)) {
-			auto cond = evaluate(car(cdr(object)), env);
+			traceback.push(object);
+			auto cond = evaluate(car(cdr(object)), env, traceback);
 			auto then_branch = car(cdr(cdr(object)));
 			auto else_branch = car(cdr(cdr(cdr(object))));
 
@@ -194,7 +153,6 @@ Object* evaluate(Object* object, Environment* env) {
 				if(cond->boolean) {
 					object = then_branch;
 					continue;
-					return evaluate(then_branch, env);
 				} else {
 					if(is_null(cdr(cdr(cdr(object))))) {
 						return Constants::False;
@@ -211,20 +169,21 @@ Object* evaluate(Object* object, Environment* env) {
 			}
 
 		} else if(is_pair(object)) {
+			traceback.push(object);
 			// this then should be a function
 			// so we get the first item of the list and search the environment for it
 			// if its a function we try to evaluate it
 			// else we pass an error
 			
 
-			auto procedure = evaluate(car(object), env);
+			auto procedure = evaluate(car(object), env, traceback);
 
 			if(is_primitive_procedure(procedure)) {
-				auto arguments = evaluate_list(cdr(object), env);
+				auto arguments = evaluate_list(cdr(object), env, traceback);
 				return (procedure->func)(arguments);			
 
 			} else if(is_procedure(procedure)) {
-				auto arguments = evaluate_list(cdr(object), env);
+				auto arguments = evaluate_list(cdr(object), env, traceback);
 				auto params = car(procedure);
 				auto body = cdr(procedure);
 
@@ -234,8 +193,6 @@ Object* evaluate(Object* object, Environment* env) {
 				env = proc_scope;
 				object = body;
 				continue;
-
-				return evaluate(body, proc_scope);
 			} else {
 				return make_object_error("test");
 			}
@@ -245,10 +202,10 @@ Object* evaluate(Object* object, Environment* env) {
 	}
 }
 
-Object* evaluate_list(Object* list, Environment* env) {
+Object* evaluate_list(Object* list, Environment* env, Stack& traceback) {
 	if(is_null(list)) {
 		return Constants::Null;
 	} else {
-		return cons(evaluate(car(list), env), evaluate_list(cdr(list), env));
+		return cons(evaluate(car(list), env, traceback), evaluate_list(cdr(list), env, traceback));
 	}
 }

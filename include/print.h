@@ -6,7 +6,7 @@
 #include "object.h"
 
 //std::string print_object(Object* object);
-std::string print_object(Object* object);
-std::string print_pair(Object* pair);
+std::string print_object(Object* object, Stack traceback);
+std::string print_pair(Object* object, Stack traceback);
 
 #endif

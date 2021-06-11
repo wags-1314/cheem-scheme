@@ -45,7 +45,7 @@ Object* quote(Object* object);
  *
  * @return     value of defines variable
  */
-Object* define_variable(Object* object, Environment* env);
+Object* define_variable(Object* object, Environment* env, Stack& traceback);
 
 /**
  * @brief      Sets the variable.
@@ -55,7 +55,7 @@ Object* define_variable(Object* object, Environment* env);
  *
  * @return     sets the variable if it has been already initialized
  */
-Object* set_variable(Object* object, Environment* env);
+Object* set_variable(Object* object, Environment* env, Stack& traceback);
 
 /**
  * @brief      evaluates a cheem-scheme object
@@ -65,8 +65,8 @@ Object* set_variable(Object* object, Environment* env);
  *
  * @return     returns evaluated object
  */
-Object* evaluate(Object* object, Environment* env);
+Object* evaluate(Object* object, Environment* env, Stack& traceback);
 
-Object* evaluate_list(Object* list, Environment* env);
+Object* evaluate_list(Object* list, Environment* env, Stack& traceback);
 
 #endif

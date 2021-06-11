@@ -161,6 +161,14 @@ Object* cdr(Object* pair) {
 	return pair->cdr;
 }
 
+Object* bool_to_object_bool(bool a) {
+	if(a) {
+		return Constants::True;
+	} else {
+		return Constants::False;
+	}
+}
+
 Object* Constants::Null = new Object(ObjectType::O_NULL);
 Object* Constants::False = new Object(false);
 Object* Constants::True = new Object(true);
