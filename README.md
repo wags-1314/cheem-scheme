@@ -1,4 +1,7 @@
-# cheem-scheme
+# Cheem Scheme
+A interpreter for a dialect of the functional programming language Scheme written from scratch in C++. Currently implements integers, cons lists, booleans, characters, strings, scoped environments and lambdas, all put together in a simple REPL.
+
+## Build Instructions
 Run `make` to build cheem-scheme and `make run` to run it. You should see this repl pop up.
 
 ```
