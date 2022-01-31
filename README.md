@@ -1,5 +1,5 @@
 # Cheem Scheme
-A interpreter for a dialect of the functional programming language Scheme written from scratch in C++. Currently implements integers, cons lists, booleans, characters, strings, scoped environments and lambdas, all put together in a simple REPL.
+A interpreter for a dialect of the functional programming language Scheme written from scratch in C++. Currently implements integers, arithmetic operations, cons lists, booleans, conditional branching, characters, strings, scoped environments, lambdas, and recursion all put together in a simple REPL. The interpreter also does tail call oprimization, and can identify and report syntax and runtime errors.
 
 ## Build Instructions
 Run `make` to build cheem-scheme and `make run` to run it. You should see this repl pop up.
